@@ -637,38 +637,10 @@ namespace SharpKeys
             }
 
             // adding a new mapping, so prep the add dialog with all of the scancodes
-            Dialog_KeyItem dlg = new Dialog_KeyItem();
-            dlg.m_hashKeys = m_hashKeys; // passed into this dialog so it can go out to the next
-            IDictionaryEnumerator iDic = m_hashKeys.GetEnumerator();
-            while (iDic.MoveNext() == true)
-            {
-                string str = string.Format("{0} ({1})", iDic.Value, iDic.Key);
-                dlg.lbFrom.Items.Add(str);
-                dlg.lbTo.Items.Add(str);
-            }
-
-            // remove the null setting for "From" since you can never have a null key to map
-            int nPos = 0;
-            nPos = dlg.lbFrom.FindString("-- Turn Key Off (00_00)");
-            if (nPos > -1)
-                dlg.lbFrom.Items.RemoveAt(nPos);
-
-            // Now remove any of the keys that have already been mapped in the list (can't double up on from's)
-            for (int i = 0; i < lvKeys.Items.Count; i++)
-            {
-                nPos = dlg.lbFrom.FindString(lvKeys.Items[i].Text);
-                if (nPos > -1)
-                    dlg.lbFrom.Items.RemoveAt(nPos);
-            }
-
-            // let C# sort the lists
-            dlg.lbFrom.Sorted = true;
-            dlg.lbTo.Sorted = true;
+            Dialog_KeyItem dlg = new Dialog_KeyItem(m_hashKeys, lvKeys, null, null);
 
             // UI stuff
             dlg.Text = "SharpKeys: Add New Key Mapping";
-            dlg.lbFrom.SelectedIndex = 0;
-            dlg.lbTo.SelectedIndex = 0;
             if (dlg.ShowDialog() == DialogResult.OK)
             {
                 m_bDirty = true;
@@ -691,50 +663,8 @@ namespace SharpKeys
             }
 
             // built the drop down lists no matter what
-            Dialog_KeyItem dlg = new Dialog_KeyItem();
-            dlg.m_hashKeys = m_hashKeys; // passed into this dialog so it can go out to the next
-            IDictionaryEnumerator iDic = m_hashKeys.GetEnumerator();
-            while (iDic.MoveNext() == true)
-            {
-                string str = string.Format("{0} ({1})", iDic.Value, iDic.Key);
-                dlg.lbFrom.Items.Add(str);
-                dlg.lbTo.Items.Add(str);
-            }
-
-            // remove the null setting for "From" since you can never have a null key to map
-            int nPos = 0;
-            nPos = dlg.lbFrom.FindString("-- Turn Key Off (00_00)");
-            if (nPos > -1)
-                dlg.lbFrom.Items.RemoveAt(nPos);
-
-            // remove any of the existing from key mappings however, leave in the one that has currently
-            // been selected!
-            for (int i = 0; i < lvKeys.Items.Count; i++)
-            {
-                nPos = dlg.lbFrom.FindString(lvKeys.Items[i].Text);
-                if ((nPos > -1) && (lvKeys.Items[i].Text != lvKeys.SelectedItems[0].Text))
-                {
-                    dlg.lbFrom.Items.RemoveAt(nPos);
-                }
-            }
-
-            // Let C# sort the lists
-            dlg.lbFrom.Sorted = true;
-            dlg.lbTo.Sorted = true;
-
-            // as it's an edit, set the drop down lists to the current From value
-            nPos = dlg.lbFrom.FindString(lvKeys.SelectedItems[0].Text);
-            if (nPos > -1)
-                dlg.lbFrom.SelectedIndex = nPos;
-            else
-                dlg.lbFrom.SelectedIndex = 0;
-
-            // as it's an edit, set the drop down lists to the current To value
-            nPos = dlg.lbTo.FindString(lvKeys.SelectedItems[0].SubItems[1].Text);
-            if (nPos > -1)
-                dlg.lbTo.SelectedIndex = nPos;
-            else
-                dlg.lbTo.SelectedIndex = 0;
+            ListViewItem selectedItem = lvKeys.SelectedItems[0];
+            Dialog_KeyItem dlg = new Dialog_KeyItem(m_hashKeys, lvKeys, selectedItem.Text, selectedItem.SubItems[1].Text);
 
             dlg.Text = "SharpKeys: Edit Key Mapping";
             if (dlg.ShowDialog() == DialogResult.OK)
